@@ -24,7 +24,7 @@ async function main () {
   const backup = new Backup({
     chatId,
     authToken,
-    target
+    target: `out/${target}`
   });
 
   return backup.run();

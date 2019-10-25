@@ -1,0 +1,28 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.message {
+  border: 1px solid #ccc;
+  margin: 10px;
+  padding: 8px;
+  font-size: 12px;
+}
+
+.message-left {
+  margin-right: 40%;
+}
+
+.message-right {
+  margin-left: 40%;
+}
+
+.message-timestamp {
+  float: left;
+  margin-right: 20px;
+  color: #aaa;
+}
+
+.message-sender {
+  margin-bottom: 8px;
+}
