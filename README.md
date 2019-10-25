@@ -44,4 +44,4 @@ Once the export is completed, you'll find them in a subdirectory in the `out` di
 
 # Work to do
 
-* Retrieve screenshots (as you need the same token to get these images)
+* Replace image URLs in template

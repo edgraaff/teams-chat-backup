@@ -31,6 +31,7 @@ class Backup {
   async run () {
     await this.createTarget();
     await this.getMessages();
+    await this.getImages();
     await this.createHtml();
   }
 
@@ -85,14 +86,62 @@ class Backup {
     }
   }
 
+  async getPages () {
+    const filenames = await fsAPI.readdir(this.target);
+    return filenames.filter(filename => FILENAME_MATCH.test(filename));
+  }
+
+  async getImages () {
+    const pages = await this.getPages();
+
+    const index = {};
+    let imageIdx = 0;
+
+    // loop over pages
+    for (const page of pages) {
+      const data = await fsAPI.readFile(path.resolve(this.target, page), 'utf8');
+      const messages = JSON.parse(data);
+
+      // loop over messages
+      for (const message of messages) {
+        if (message.body.contentType === 'html') {
+          // detect image
+          const imageUrls = message.body.content.match(/https:\/\/graph.microsoft.com\/beta\/users([^"]*)/g);
+          if (imageUrls) {
+            for (const imageUrl of imageUrls) {
+              if (!index[imageUrl]) {
+                const targetFilename = 'image-' + `0000${imageIdx++}`.slice(-5);
+
+                console.log('downloading', targetFilename);
+
+                const res = await this.instance({
+                  method: 'get',
+                  url: imageUrl,
+                  responseType: 'stream'
+                });
+
+                res.data.pipe(fs.createWriteStream(path.resolve(this.target, targetFilename)));
+                await pipeDone(res.data);
+
+                index[imageUrl] = targetFilename;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // write image index
+    await fsAPI.writeFile(path.resolve(this.target, 'images.json'), JSON.stringify(index), 'utf8');
+  }
+
   async createHtml () {
     // need my id to identify 'my' messages
     const profile = await this.instance.get('https://graph.microsoft.com/v1.0/me/');
     const myId = profile.data.id;
 
     // collect pages to include
-    const filenames = await fsAPI.readdir(this.target);
-    const pages = filenames.filter(filename => FILENAME_MATCH.test(filename));
+    const pages = await this.getPages();
 
     const fd = await fsAPI.open(path.resolve(this.target, 'index.html'), 'w');
 
@@ -146,6 +195,12 @@ function escapeHtml (unsafe) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function pipeDone (readable) {
+  return new Promise((resolve, reject) => {
+    readable.on('end', resolve);
+  });
 }
 
 module.exports = Backup;
