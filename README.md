@@ -1,47 +1,47 @@
 # Microsoft Teams chat backup
 
-Work in progress.
+This project retrieves a full chat history (messages and uploaded files) and renders it as a HTML.
 
-## What does it do?
+## Requirements
 
-It exports the full history of a Microsoft Teams chat.
+Node.js 10 (or higher). Tested on macOS, but will most likely run on Linux and probably run on Windows too.
 
-## How do I run it?
+# Setup
 
-(for the first time)
+Like any other JS project, clone this repo and run the following command to install dependencies:
 
 ```sh
 npm run install
 ```
 
-To run the process:
+# Run
+
+To backup a chat:
 
 ```sh
 npm run start
 ```
 
-## What do I need?
+This will ask several questions:
 
-**Chat ID**
+**Chat ID** - this is the identifier of the conversation. To find it:
 
 1. Go to [https://teams.microsoft.com]()
 2. Go to the chat you'd like to export.
-3. Copy chat ID from URL
+3. Copy chat ID from URL. It looks like `19:<uuid of one user>-<uuid of other user>@unq.gbl.spaces`
 
-**Auth token**
+**Auth token (JWT)** - needed for calling Microsoft Graph APIs.
 
-1. Go to [https://developer.microsoft.com/en-us/graph/graph-explorer]() and login
-2. On the left side (where you clicked for login), hit "modify your permissions". Enable Chat.Read and re-login.
-3. Copy token from URL (#access_token=ey...). Or make any random call in the sandbox and copy the Authorization request header from the console.
+1. Go to [https://developer.microsoft.com/en-us/graph/graph-explorer](). At the left side, under Authentication, click "Sign In with Microsoft"
+2. After having logged in, on the left side (where you clicked for login), click "modify permissions". Enable `Chat.Read` and re-login (like it states).
+3. The URL contains the token (`#access_token=<long token goes here>`). Copy this value. Or make any random call in the sandbox and copy the Authorization request header from the JS console (without `Bearer ` in front of it).
 
-**Target directory**
+**Target directory name** - is the name to use for the export (will be created in the `out` directory in this project).
 
-is the location where you'd like to export the history to.
+# Output
 
-## And then?
+An exported chat contains:
 
-Once the export is completed, you'll find them in a subdirectory in the `out` directory. The messages of every page are saved in JSON files. A "human readable" version is stored as `index.html` in the target directory.
-
-# Work to do
-
-* Replace image URLs in template
+* `messages-####.json`: these are the pages of messages. Page 0000 is the most recent one (pages and messages within are in reverse order).
+* `image-####`: these are images uploaded in the chat
+* `index.html`: is the full history rendered into a simple HTML template, referring to the downloaded images. This is the file you want for viewing.
