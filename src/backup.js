@@ -13,6 +13,7 @@ const fsAPI = {
 };
 
 const FILENAME_MATCH = /messages-([0-9]{1,})\.json/;
+const UPLOADED_IMAGE_MATCH = /https:\/\/graph.microsoft.com\/beta\/users([^"]*)/g;
 
 class Backup {
   constructor ({ chatId, authToken, target }) {
@@ -106,7 +107,7 @@ class Backup {
       for (const message of messages) {
         if (message.body.contentType === 'html') {
           // detect image
-          const imageUrls = message.body.content.match(/https:\/\/graph.microsoft.com\/beta\/users([^"]*)/g);
+          const imageUrls = message.body.content.match(UPLOADED_IMAGE_MATCH);
           if (imageUrls) {
             for (const imageUrl of imageUrls) {
               if (!index[imageUrl]) {
@@ -143,6 +144,16 @@ class Backup {
     // collect pages to include
     const pages = await this.getPages();
 
+    // get image mappings
+    let imageIndex;
+    try {
+      const imageIndexData = await fsAPI.readFile(path.resolve(this.target, 'images.json'), 'utf8');
+      imageIndex = JSON.parse(imageIndexData);
+    } catch (er) {
+      console.error('couldn\'t read images index', er);
+      // continue without images
+    }
+
     const fd = await fsAPI.open(path.resolve(this.target, 'index.html'), 'w');
 
     // write head
@@ -170,7 +181,7 @@ class Backup {
 `);
 
         if (message.body.contentType === 'html') {
-          await fsAPI.write(fd, `<div class="message-body">${message.body.content}</div>
+          await fsAPI.write(fd, `<div class="message-body">${replaceImages(message.body.content, imageIndex)}</div>
 </div>`);
         } else {
           await fsAPI.write(fd, `<div class="message-body">${escapeHtml(message.body.content)}</div>
@@ -195,6 +206,17 @@ function escapeHtml (unsafe) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function replaceImages (content, imageIndex) {
+  if (imageIndex) {
+    return content.replace(UPLOADED_IMAGE_MATCH, url => {
+      // replace (if we have a replacement)
+      return imageIndex[url] || url;
+    });
+  }
+
+  return content;
 }
 
 function pipeDone (readable) {
