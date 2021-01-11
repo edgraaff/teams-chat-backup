@@ -49,4 +49,5 @@ An exported chat contains:
 # To Do
 
 Make an easier way of obtaining a token.
+
 Add support for bot messages (for example a form).
