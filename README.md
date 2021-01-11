@@ -1,6 +1,6 @@
 # Microsoft Teams Chat Backup
 
-This project retrieves a full chat history (messages and uploaded files) and renders it as a HTML.
+This project retrieves a full chat history (messages and uploaded files) and renders it as an HTML.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ npm install
 
 # Run
 
-To backup a chat:
+To backup a chat, run:
 
 ```sh
 npm run start
@@ -30,7 +30,7 @@ This will ask several questions:
 2. Go to the chat you'd like to export.
 3. Copy chat ID from URL. It looks like `19:<uuid of one user>-<uuid of other user>@unq.gbl.spaces`
 
-**Auth token (JWT)** - needed for calling Microsoft Graph APIs.
+**Auth token (JWT)** - this is needed for calling Microsoft Graph APIs.
 
 1. Go to [https://developer.microsoft.com/en-us/graph/graph-explorer](https://developer.microsoft.com/en-us/graph/graph-explorer). At the left side, under Authentication, click "Sign In with Microsoft"
 2. After having logged in, on the left side (where you clicked for login), click "modify permissions". Enable `Chat.Read` and re-login (like it states).
