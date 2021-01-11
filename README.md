@@ -11,7 +11,7 @@ Node.js 10 (or higher). Tested on macOS, but will most likely run on Linux and p
 Like any other JS project, clone this repo and run the following command to install dependencies:
 
 ```sh
-npm run install
+npm install
 ```
 
 # Run
