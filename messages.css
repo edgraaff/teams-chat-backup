@@ -26,3 +26,8 @@ body {
 .message-sender {
   margin-bottom: 8px;
 }
+
+img {
+  max-width:720px !important;
+  height:auto !important;
+}
