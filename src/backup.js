@@ -13,7 +13,7 @@ const fsAPI = {
 };
 
 const FILENAME_MATCH = /messages-([0-9]{1,})\.json/;
-const UPLOADED_IMAGE_MATCH = /https:\/\/graph.microsoft.com\/beta\/users([^"]*)/g;
+const UPLOADED_IMAGE_MATCH = /https:\/\/graph.microsoft.com\/beta\/chats([^"]*)/g;
 
 class Backup {
   constructor ({ chatId, authToken, target }) {
@@ -176,28 +176,30 @@ class Backup {
         const message = messages[messageIdx];
 
         // message sent by a user
-        if (message.from.user != null) {
+        if (message.from) {
+          if (message.from.user != null) {
             await fsAPI.write(fd, `<div class="message ${message.from.user.id === myId ? 'message-right' : 'message-left'}">
   <div class="message-timestamp">${message.lastModifiedDateTime || message.createdDateTime}</div>
   <div class="message-sender">${message.from.user.displayName}</div>
 `);
 
             if (message.body.contentType === 'html') {
-                await fsAPI.write(fd, `<div class="message-body">${replaceImages(message.body.content, imageIndex)}</div>
+              await fsAPI.write(fd, `<div class="message-body">${replaceImages(message.body.content, imageIndex)}</div>
 </div>`);
-              } else {
-                await fsAPI.write(fd, `<div class="message-body">${escapeHtml(message.body.content)}</div>
+            } else {
+              await fsAPI.write(fd, `<div class="message-body">${escapeHtml(message.body.content)}</div>
 </div>`);
-              }
-        // message sent by a bot
-        } else if (message.from.application != null) {
+            }
+          // message sent by a bot
+          } else if (message.from.application != null) {
             await fsAPI.write(fd, `<div class="message message-left">
 <div class="message-timestamp">${message.lastModifiedDateTime || message.createdDateTime}</div>
 <div class="message-sender">${message.from.application.displayName}</div>
 </div>`);
-        } else {
+          } else {
             console.error('couldn\'t determine message sender');
-        }       
+          }
+        }
       }
     }
 
