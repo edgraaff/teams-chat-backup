@@ -11,7 +11,7 @@
   "author": "Edgar de Graaff",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.2"
   },
   "devDependencies": {
     "standard": "16.0.3"
