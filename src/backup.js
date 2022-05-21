@@ -159,6 +159,7 @@ class Backup {
     // write head
     await fsAPI.write(fd, `<html>
   <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="../../messages.css">
   </head>
   <body>
