@@ -67,22 +67,26 @@ class Backup {
       const pageNum = `0000${page++}`.slice(-5);
 
       console.log(`retrieve page ${pageNum}`);
-      const res = await this.instance.get(url);
+      try {
+        const res = await this.instance.get(url);
 
-      if (res.data.value && res.data.value.length) {
-        await fsAPI.writeFile(
-          path.resolve(this.target, `messages-${pageNum}.json`),
-          JSON.stringify(res.data.value, null, '  '),
-          'utf8');
-      }
+        if (res.data.value && res.data.value.length) {
+          await fsAPI.writeFile(
+            path.resolve(this.target, `messages-${pageNum}.json`),
+            JSON.stringify(res.data.value, null, '  '),
+            'utf8');
+        }
 
-      // if there's a next page (earlier messages) ...
-      if (res.data['@odata.count'] && res.data['@odata.nextLink']) {
-        // .. get these in the next round
-        url = res.data['@odata.nextLink'];
-      } else {
-        // otherwise we're done
-        break;
+        // if there's a next page (earlier messages) ...
+        if (res.data['@odata.count'] && res.data['@odata.nextLink']) {
+          // .. get these in the next round
+          url = res.data['@odata.nextLink'];
+        } else {
+          // otherwise we're done
+          break;
+        }
+      } catch (_err) {
+        console.log(`retrieve page ${pageNum} failed`);
       }
     }
   }
@@ -115,16 +119,20 @@ class Backup {
 
                 console.log('downloading', targetFilename);
 
-                const res = await this.instance({
-                  method: 'get',
-                  url: imageUrl,
-                  responseType: 'stream'
-                });
+                try {
+                  const res = await this.instance({
+                    method: 'get',
+                    url: imageUrl,
+                    responseType: 'stream'
+                  });
 
-                res.data.pipe(fs.createWriteStream(path.resolve(this.target, targetFilename)));
-                await pipeDone(res.data);
+                  res.data.pipe(fs.createWriteStream(path.resolve(this.target, targetFilename)));
+                  await pipeDone(res.data);
 
-                index[imageUrl] = targetFilename;
+                  index[imageUrl] = targetFilename;
+                } catch (_err) {
+                  console.log(`downloading ${ targetFilename } failed`);
+                }
               }
             }
           }
