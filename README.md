@@ -2,6 +2,10 @@
 
 This project retrieves a full chat history (messages and uploaded files) and renders it as an HTML.
 
+# Important notice
+
+The maintainer does no longer have the need for this tool, nor can't find the time to keep it alive. Therefore this repository is set to read-only. If anyone is willing to maintain this utility, feel free to fork this repository.
+
 ## Requirements
 
 Node.js 10 (or higher). Tested on macOS and Windows, but will most likely run on Linux too.
